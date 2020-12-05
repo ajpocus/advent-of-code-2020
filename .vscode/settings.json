@@ -3,6 +3,7 @@
     "istream": "cpp",
     "string": "cpp",
     "iosfwd": "cpp",
-    "regex": "cpp"
+    "regex": "cpp",
+    "vector": "cpp"
   }
 }

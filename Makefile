@@ -1,5 +1,6 @@
 CC        := g++
 LD        := g++
+CFLAGS += -I$(path)/src
 
 SRC_DIR   = src
 BUILD_DIR = build
