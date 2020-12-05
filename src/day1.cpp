@@ -53,7 +53,7 @@ int main() {
   assert(test_product == expected_product);
 
   ifstream input_file;
-  input_file.open("day1.txt", ios::in);
+  input_file.open("input/day1.txt", ios::in);
 
   if (!input_file.is_open()) {
     return -1;
