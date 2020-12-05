@@ -1,6 +1,8 @@
 {
   "files.associations": {
     "istream": "cpp",
-    "string": "cpp"
+    "string": "cpp",
+    "iosfwd": "cpp",
+    "regex": "cpp"
   }
 }
