@@ -77,37 +77,55 @@ int Grid::count_trees(int xrun, int yrun) {
   int y_limit = tree_map.size();
   int treecount = 0;
 
+  int x = position.x;
+  int y = position.y;
+
+  // walk the tree
   while (position.y < y_limit) {
+    // get the current "step's" target position, xrun units over and yrun units down
     int target_x = step_x(xrun);
     int target_y = step_y(yrun);
-    
+
     cout << "target x: " << target_x << "\n";
     cout << "target y: " << target_y << "\n";
 
-    int x = position.x;
-    int y = position.y;
-
-    while (x != target_x) {
+    // do a step until we reach the target x
+    do {
       cout << "x, y: " << x << ", " << y << "\n";
+
+      if (y >= y_limit) {
+        break;
+      }
 
       char chr = tree_map[y][x];
       if (chr == '#') {
           ++treecount;
       }
+
+      cout << "chr: " << chr << "\n";
 
       x = step_x();
-    }
+      position.x = x;
+    } while (x != target_x);
 
-    while (y < target_y) {
+    // do a step until we reach the target y
+    do {
       cout << "x, y: " << x << ", " << y << "\n";
       
+      if (y >= y_limit) {
+        break;
+      }
+
       char chr = tree_map[y][x];
       if (chr == '#') {
           ++treecount;
       }
 
+      cout << "chr: " << chr << "\n";
+
       y = step_y();
-    }
+      position.y = y;
+    } while (y < target_y);
   }
 
   return treecount;

@@ -4,6 +4,7 @@
     "string": "cpp",
     "iosfwd": "cpp",
     "regex": "cpp",
-    "vector": "cpp"
+    "vector": "cpp",
+    "iostream": "cpp"
   }
 }
