@@ -30,10 +30,11 @@ class Grid {
   // first dimension is "row", second dimension is "column"
   // so tree_map[0][1] is the second column of the first row
   vector< vector<char> > tree_map;
-  Position position;
   size_t row_length;
 
   public:
+  
+  Position position;
 
   Grid(vector<string>);
   int step_x();
@@ -41,14 +42,15 @@ class Grid {
   int step_y();
   int step_y(int);
   int count_trees(int, int);
+  int test_slopes();
 };
 
 Grid::Grid(vector<string> lines) {
-  for (int x = 0; x < lines[0].size(); ++x) {
+  for (int y = 0; y < lines.size(); ++y) {
     vector<char> chrs;
 
-    for (int y = 0; y < lines.size(); ++y) {
-      chrs.push_back(lines[x][y]);
+    for (int x = 0; x < lines[0].size(); ++x) {
+      chrs.push_back(lines[y][x]);
     }
 
     tree_map.push_back(chrs);
@@ -81,7 +83,6 @@ int Grid::count_trees(int xrun, int yrun) {
   while (position.y < y_limit) {
     int x = position.x;
     int y = position.y;
-    cout << "x, y: " << position.x << ", " << position.y << "\n";
 
     // get the current "step's" target position, xrun units over and yrun units down
     char chr = tree_map[y][x];
@@ -93,9 +94,26 @@ int Grid::count_trees(int xrun, int yrun) {
     position.y = step_y(yrun);
   }
 
-  cout << "x, y: " << position.x << ", " << position.y << "\n";
-
   return treecount;
+}
+
+int Grid::test_slopes() {
+  int slopes[][2] = {{1, 1}, {3, 1}, {5, 1}, {7, 1}, {1, 2}};
+  int product = 1;
+
+  for (auto pair: slopes) {
+    int xrun = pair[0];
+    int yrun = pair[1];
+    cout << "x, y: " << xrun << ", " << yrun << "\n";
+    int tree_count = count_trees(xrun, yrun);
+    cout << "treecnt: " << tree_count << "\n";
+    product *= tree_count;
+
+    position.x = 0;
+    position.y = 0;
+  }
+
+  return product;
 }
 
 int main() {
@@ -118,6 +136,10 @@ int main() {
   int tree_count = grid->count_trees(xrun, yrun);
 
   cout << tree_count << "\n";
+
+  grid->position.x = 0;
+  grid->position.y = 0;
+  cout << grid->test_slopes() << "\n";
 
   delete(grid);
   
