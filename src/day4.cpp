@@ -4,6 +4,7 @@
 #include <string>
 #include <regex>
 #include <map>
+#include <array>
 
 #include "common.hpp"
 
@@ -17,13 +18,11 @@ string read_entire_file(string filepath) {
   string input;
   string line;
   while (getline(input_file, line)) {
-    input += line;
+    input += line + '\n';
   }
 
   return input;
 }
-
-const regex passport_parser = "((\\w+):(.+?))";
 
 const string REQUIRED_FIELDS[] {
   "byr",
@@ -39,15 +38,16 @@ const string REQUIRED_FIELDS[] {
 class Passport {
   public:
 
-  static list<Passport *> parse_input(string);
-
   bool has_required_fields();
+  static list<Passport *> parse_passports(string);
+  static list<string> parse_lines(string input);
+  static list<string> parse_groups(list<string>);
+  static list< vector<string> > parse_keypairs(string);
+  static Passport *parse_passport(list< vector<string> >);
 
   private:
 
   map<string, string> fields;
-
-  static Passport *parse_single(string);
 };
 
 bool Passport::has_required_fields() {
@@ -64,65 +64,109 @@ bool Passport::has_required_fields() {
   return true;
 }
 
-list<Passport *> Passport::parse_input(string raw_input) {
-  string current_str = "";
-  list<string> passport_strings;
-
-  for (string::iterator it = raw_input.begin(); it != raw_input.end(); ++it) {
-    cout << "it: " << *it << "\n";
-    if (*it == '\n' && *(next(it)) == '\n') {
-      cout << "aokesjofwijefoij" << *(next(it)) << "\n";
-      passport_strings.push_back(current_str);
-      current_str = "";
-      ++it;
-      cout << "newline handler: [" << *it << "]\n";
-    } else if (isspace(*it)) {
-      cout << "this ain't no ordinary gun\n";
-      current_str.push_back(' ');
-    } else {
-      current_str.push_back(*it);
-    }
-  }
-
-  if (current_str.size() > 0) {
-    passport_strings.push_back(current_str);
-  }
-
-  // testing logs
-  for (auto str: passport_strings) {
-    cout << "str: " << str << "\n";
-  }
-
+list<Passport *> Passport::parse_passports(string input) {
   list<Passport *> passports;
-  for (auto pass_str: passport_strings) {
-    passports.push_back(Passport::parse_single(pass_str));
+
+  list<string> lines = parse_lines(input);
+  list<string> groups = parse_groups(lines);
+  for (auto group: groups) {
+    list<vector<string>> keypairs = parse_keypairs(group);
+    Passport *passport = parse_passport(keypairs);
+    passports.push_back(passport);
   }
 
   return passports;
 }
 
-Passport *Passport::parse_single(string line) {
-  vector<string *> pairs = split_string(line, ' ');
+list<string> Passport::parse_lines(string input) {
+  list<string> lines;
 
-  map<string, string> new_fields;
+  const regex line_parser("(.*?\n)+");
+  smatch matches;
+  regex_search(input, matches, line_parser);
 
-  for (string *pairstr: pairs) {
-    vector<string *> keyval = split_string(*pairstr, ':');
-    string key = *keyval[0];
-    string val = *keyval[1];
-    cout << "key, val: " << key << ":" << val << "\n";
-    new_fields.insert({ key, val });
+  for (auto match: matches) {
+    if (match == *matches.begin()) {
+      continue;
+    }
+
+    string match_str = match.str();
+    lines.push_back(match_str.substr(0, match_str.size() - 1));
   }
 
+  return lines;
+};
+
+list<string> Passport::parse_groups(list<string> lines) {
+  list<string> groups;
+  string current_group = "";
+
+  for (auto line: lines) {
+    // if it has a newline or is blank
+    size_t len = line.size();
+    if (len <= 1) {
+      groups.push_back(current_group);
+      current_group = "";
+    } else {
+      current_group += line.substr(0, len - 1) + ' ';
+    }
+  }
+
+  if (current_group.size() > 1) {
+    lines.push_back(current_group);
+  }
+
+  cout << "groups; " << groups.size() << endl;
+
+  return lines;
+}
+
+list< vector<string> > Passport::parse_keypairs(string group) {
+  list< vector<string> > keypairs = {};
+
+  const regex keypair_regex("((\\w+):(.+?)\\s)+");
+  smatch matches;
+  vector<string> keypair;
+
+  regex_search(group, matches, keypair_regex);
+
+  for (smatch::const_iterator it = matches.begin(); it != matches.end(); ++it) {
+    long idx = it - matches.begin();
+    if (idx == 0) { continue; }
+
+    switch (idx % 3) {
+      case 1:
+        // whole group match, skip
+        break;
+      case 2:
+        // key match
+        cout << "key: " << *it << endl;
+        break;
+      case 3:
+        // val match
+        cout << "val: " << *it << endl;
+        break;
+      default:
+        break;
+    }
+  }
+
+  // TODO finish this function
+
+  return keypairs;
+}
+
+Passport *parse_passport(list< vector<string> > pairs) {
   Passport *passport = new Passport();
-  passport->fields = new_fields;
+
+  // TODO; fill in the details
 
   return passport;
 }
 
 int main() {
   string test_input = read_entire_file("input/day4_test.txt");
-  list<Passport *> test_passports = Passport::parse_input(test_input);
+  list<Passport *> test_passports = Passport::parse_passports(test_input);
   
   int test_valid = 0;
   for (auto pass: test_passports) {
@@ -135,7 +179,7 @@ int main() {
   assert(test_valid == 2);
 
   string in = read_entire_file("input/day4.txt");
-  list<Passport *> passports = Passport::parse_input(in);
+  list<Passport *> passports = Passport::parse_passports(in);
   
   int valid = 0;
   for (auto pass: passports) {
