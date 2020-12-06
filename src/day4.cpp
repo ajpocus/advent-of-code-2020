@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <list>
 #include <string>
 #include <regex>
@@ -7,6 +8,21 @@
 #include "common.hpp"
 
 using namespace std;
+
+string read_entire_file(string filepath) {
+  ifstream input_file;
+  input_file.open(filepath, ios::in);
+
+  // get input
+  string input;
+  string line;
+  while (getline(input_file, line)) {
+    input += line;
+  }
+
+  return input;
+}
+
 
 const string REQUIRED_FIELDS[] {
   "byr",
@@ -22,7 +38,7 @@ const string REQUIRED_FIELDS[] {
 class Passport {
   public:
 
-  static list<Passport *> parse_input(list<string>);
+  static list<Passport *> parse_input(string);
 
   bool has_required_fields();
 
@@ -30,7 +46,7 @@ class Passport {
 
   map<string, string> fields;
 
-  void parse_line(string);
+  static Passport *parse_single(string);
 };
 
 bool Passport::has_required_fields() {
@@ -47,23 +63,42 @@ bool Passport::has_required_fields() {
   return true;
 }
 
-list<Passport *> Passport::parse_input(list<string> lines) {
-  Passport *current_passport = new Passport();
-  list<Passport *> passports;
-
-  for (auto line: lines) {
-    if (line.size() == 0) {
-      passports.push_back(current_passport);
-      current_passport = new Passport();
+list<Passport *> Passport::parse_input(string raw_input) {
+  string current_str = "";
+  list<string> passport_strings;
+  cout << "raw: " << raw_input << "\n";
+  typedef string::iterator iter;
+  for (iter it = raw_input.begin(); it != raw_input.end(); ++it) {
+    if (*it == '\n' && *next(it) == '\n') {
+      passport_strings.push_back(current_str);
+      current_str = "";
+      ++it;
+      cout << "newline handler: [" << *it << "]\n";
+    } else if (*it == '\n') {
+      current_str += ' ';
+    } else {
+      current_str.push_back(*it);
     }
+  }
 
-    current_passport->parse_line(line);
+  if (current_str.size() > 0) {
+    passport_strings.push_back(current_str);
+  }
+
+  // testing logs
+  for (auto str: passport_strings) {
+    cout << "str: " << str << "\n";
+  }
+
+  list<Passport *> passports;
+  for (auto pass_str: passport_strings) {
+    passports.push_back(Passport::parse_single(pass_str));
   }
 
   return passports;
 }
 
-void Passport::parse_line(string line) {
+Passport *Passport::parse_single(string line) {
   vector<string *> pairs = split_string(line, ' ');
 
   map<string, string> new_fields;
@@ -73,13 +108,18 @@ void Passport::parse_line(string line) {
     string key = *keyval[0];
     string val = *keyval[1];
     cout << "key, val: " << key << ":" << val << "\n";
-    fields.insert({ key, val });
+    new_fields.insert({ key, val });
   }
+
+  Passport *passport = new Passport();
+  passport->fields = new_fields;
+
+  return passport;
 }
 
 int main() {
-  list<string> test_lines = get_file("input/day4_test.txt");
-  list<Passport *> test_passports = Passport::parse_input(test_lines);
+  string test_input = read_entire_file("input/day4_test.txt");
+  list<Passport *> test_passports = Passport::parse_input(test_input);
   
   int test_valid = 0;
   for (auto pass: test_passports) {
@@ -88,10 +128,10 @@ int main() {
     }
   }
   
-  cout << test_valid << "\n";
+  cout << "test: " << test_valid << "\n";
   assert(test_valid == 2);
 
-  list<string> in = get_file("input/day4.txt");
+  string in = read_entire_file("input/day4.txt");
   list<Passport *> passports = Passport::parse_input(in);
   
   int valid = 0;
