@@ -1,9 +1,8 @@
 #include <iostream>
-#include <vector>
+#include <list>
 #include <string>
 #include <regex>
 #include <map>
-#include <list>
 
 #include "common.hpp"
 
@@ -23,17 +22,24 @@ const string REQUIRED_FIELDS[] {
 class Passport {
   public:
 
-  static vector<Passport *> parse_input(vector<string>);
+  static list<Passport *> parse_input(list<string>);
+
+  bool has_required_fields();
+
+  private:
 
   map<string, string> fields;
 
-  bool has_required_fields();
   void parse_line(string);
 };
 
 bool Passport::has_required_fields() {
-  for (auto req_field: REQUIRED_FIELDS) {
-    if (fields.count(req_field) == 0 && req_field != "cid") {
+  if (fields.size() < 5) {
+    return false;
+  }
+
+  for (auto key: REQUIRED_FIELDS) {
+    if (fields.count(key) == 0 && key != "cid") {
       return false;
     }
   }
@@ -41,12 +47,12 @@ bool Passport::has_required_fields() {
   return true;
 }
 
-vector<Passport *> Passport::parse_input(vector<string> lines) {
+list<Passport *> Passport::parse_input(list<string> lines) {
   Passport *current_passport = new Passport();
-  vector<Passport *> passports;
+  list<Passport *> passports;
 
   for (auto line: lines) {
-    if (line[0] == '\n') {
+    if (line.size() == 0) {
       passports.push_back(current_passport);
       current_passport = new Passport();
     }
@@ -58,28 +64,25 @@ vector<Passport *> Passport::parse_input(vector<string> lines) {
 }
 
 void Passport::parse_line(string line) {
-  string raw = line.substr(0, line.size() - 1);
-  vector<string> pairs = split_string(raw, ' ');
+  vector<string *> pairs = split_string(line, ' ');
 
   map<string, string> new_fields;
 
-  for (string pairstr: pairs) {
-    vector<string> keyval = split_string(pairstr, ':');
-    string key = keyval[0];
-    string val = keyval[1];
-    cout << "key, val: " << key << ", " << val << "\n";
-    fields.insert(pair<string, string>(key, val));
+  for (string *pairstr: pairs) {
+    vector<string *> keyval = split_string(*pairstr, ':');
+    string key = *keyval[0];
+    string val = *keyval[1];
+    cout << "key, val: " << key << ":" << val << "\n";
+    fields.insert({ key, val });
   }
 }
 
 int main() {
-  vector<string> test_lines = get_file("input/day4_test.txt");
-  vector<Passport *> test_passports = Passport::parse_input(test_lines);
+  list<string> test_lines = get_file("input/day4_test.txt");
+  list<Passport *> test_passports = Passport::parse_input(test_lines);
   
   int test_valid = 0;
-  cout << "test passports: " << test_passports.size() << "\n";
   for (auto pass: test_passports) {
-    cout << "map size: " << pass->fields.size() << "\n";
     if (pass->has_required_fields()) {
       ++test_valid;
     }
@@ -88,7 +91,17 @@ int main() {
   cout << test_valid << "\n";
   assert(test_valid == 2);
 
-  vector<string> in = get_file("input/day4.txt");
+  list<string> in = get_file("input/day4.txt");
+  list<Passport *> passports = Passport::parse_input(in);
+  
+  int valid = 0;
+  for (auto pass: passports) {
+    if (pass->has_required_fields()) {
+      ++valid;
+    }
+  }
+  
+  cout << "Valid: " << valid << "\n";
 
   return 0;
 }

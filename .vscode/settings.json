@@ -6,6 +6,7 @@
     "regex": "cpp",
     "vector": "cpp",
     "iostream": "cpp",
-    "filesystem": "cpp"
+    "filesystem": "cpp",
+    "list": "cpp"
   }
 }

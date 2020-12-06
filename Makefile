@@ -20,6 +20,9 @@ endef
 
 checkdirs: $(BUILD_DIR)
 
+common:
+	g++ -std=c++11 -O3 -Wall -o build/common.o -c src/common.cpp
+
 $(BUILD_DIR):
 	@mkdir -p $@
 
