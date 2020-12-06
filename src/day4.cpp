@@ -23,6 +23,7 @@ string read_entire_file(string filepath) {
   return input;
 }
 
+const regex passport_parser = "((\\w+):(.+?))";
 
 const string REQUIRED_FIELDS[] {
   "byr",
@@ -66,16 +67,18 @@ bool Passport::has_required_fields() {
 list<Passport *> Passport::parse_input(string raw_input) {
   string current_str = "";
   list<string> passport_strings;
-  cout << "raw: " << raw_input << "\n";
-  typedef string::iterator iter;
-  for (iter it = raw_input.begin(); it != raw_input.end(); ++it) {
-    if (*it == '\n' && *next(it) == '\n') {
+
+  for (string::iterator it = raw_input.begin(); it != raw_input.end(); ++it) {
+    cout << "it: " << *it << "\n";
+    if (*it == '\n' && *(next(it)) == '\n') {
+      cout << "aokesjofwijefoij" << *(next(it)) << "\n";
       passport_strings.push_back(current_str);
       current_str = "";
       ++it;
       cout << "newline handler: [" << *it << "]\n";
-    } else if (*it == '\n') {
-      current_str += ' ';
+    } else if (isspace(*it)) {
+      cout << "this ain't no ordinary gun\n";
+      current_str.push_back(' ');
     } else {
       current_str.push_back(*it);
     }
