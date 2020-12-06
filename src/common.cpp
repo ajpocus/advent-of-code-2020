@@ -17,3 +17,19 @@ vector<string> get_file(string filename) {
 
   return input;
 }
+
+vector<string> split_string(string str, char delimiter) {
+  string current_token = "";
+  vector<string> tokens;
+
+  for (auto ch: str) {
+    if (ch == delimiter) {
+      tokens.push_back(current_token);
+      current_token = "";
+    }
+
+    current_token.push_back(ch);
+  }
+
+  return tokens;
+}
