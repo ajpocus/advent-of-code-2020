@@ -7,6 +7,6 @@
 using namespace std;
 
 list<string> get_file(string);
-vector<string *> *split_string(string, char);
+vector<string> split_string(string, char);
 
 #endif

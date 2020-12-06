@@ -55,8 +55,7 @@ class Passport {
 
   bool has_required_fields();
   static list<Passport *> parse_passports(list<string>);
-  static list< vector<string> > parse_keypairs(string);
-  static Passport *parse_passport(list< vector<string> >);
+  static Passport *parse_passport(string);
 
   private:
 
@@ -81,53 +80,21 @@ list<Passport *> Passport::parse_passports(list<string> groups) {
   list<Passport *> passports;
 
   for (auto group: groups) {
-    list<vector<string>> keypairs = parse_keypairs(group);
-    Passport *passport = parse_passport(keypairs);
+    Passport *passport = parse_passport(group);
     passports.push_back(passport);
   }
 
   return passports;
 }
 
-list< vector<string> > Passport::parse_keypairs(string group) {
-  list< vector<string> > keypairs = {};
-
-  const regex keypair_regex("(\\w+):(\\S+)");
-  smatch matches;
-  vector<string> keypair;
-
-  regex_search(group, matches, keypair_regex);
-
-  for (smatch::const_iterator it = matches.begin(); it != matches.end(); ++it) {
-    long idx = it - matches.begin();
-    if (idx == 0) { continue; }
-
-    switch (idx % 2) {
-      case 1:
-        // key match
-        cout << "key: " << it->str() << endl;
-        break;
-      case 0:
-        // val match
-        cout << "val: " << it->str() << endl;
-        break;
-      default:
-        break;
-    }
-  }
-
-  // TODO finish this function
-
-  return keypairs;
-}
-
-Passport *Passport::parse_passport(list< vector<string> > pairs) {
+Passport *Passport::parse_passport(string group) {
   Passport *passport = new Passport();
 
-  for (auto keypair: pairs) {
-    passport->fields.insert(pair<string, string>({ keypair[0], keypair[1] }));
+  vector<string> keypairs = split_string(group, ' ');
+  for (string keypair: keypairs) {
+    vector<string> keyval = split_string(keypair, ':');
+    passport->fields.insert({ keyval[0], keyval[1] });
   }
-  // TODO; fill in the details
 
   return passport;
 }
