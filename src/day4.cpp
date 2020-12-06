@@ -156,7 +156,7 @@ list< vector<string> > Passport::parse_keypairs(string group) {
   return keypairs;
 }
 
-Passport *parse_passport(list< vector<string> > pairs) {
+Passport *Passport::parse_passport(list< vector<string> > pairs) {
   Passport *passport = new Passport();
 
   // TODO; fill in the details
