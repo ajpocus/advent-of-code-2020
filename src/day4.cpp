@@ -10,15 +10,30 @@
 
 using namespace std;
 
-string read_entire_file(string filepath) {
+list<string> read_lines(string filepath) {
   ifstream input_file;
   input_file.open(filepath, ios::in);
 
   // get input
-  string input;
+  list<string> input;
+  string chunk = "";
   string line;
   while (getline(input_file, line)) {
-    input += line + '\n';
+    if (line.size() <= 1) {
+      input.push_back(chunk);
+      chunk = "";
+    } else {
+      chunk += line + ' ';
+    }
+  }
+
+  if (chunk.size() > 1) {
+    // not a newline, add the last line
+    input.push_back(chunk);
+  }
+
+  for (auto line: input) {
+    cout << "l: " << line << endl;
   }
 
   return input;
@@ -39,9 +54,7 @@ class Passport {
   public:
 
   bool has_required_fields();
-  static list<Passport *> parse_passports(string);
-  static list<string> parse_lines(string input);
-  static list<string> parse_groups(list<string>);
+  static list<Passport *> parse_passports(list<string>);
   static list< vector<string> > parse_keypairs(string);
   static Passport *parse_passport(list< vector<string> >);
 
@@ -64,11 +77,9 @@ bool Passport::has_required_fields() {
   return true;
 }
 
-list<Passport *> Passport::parse_passports(string input) {
+list<Passport *> Passport::parse_passports(list<string> groups) {
   list<Passport *> passports;
 
-  list<string> lines = parse_lines(input);
-  list<string> groups = parse_groups(lines);
   for (auto group: groups) {
     list<vector<string>> keypairs = parse_keypairs(group);
     Passport *passport = parse_passport(keypairs);
@@ -78,53 +89,10 @@ list<Passport *> Passport::parse_passports(string input) {
   return passports;
 }
 
-list<string> Passport::parse_lines(string input) {
-  list<string> lines;
-
-  const regex line_parser("(.*?\n)+");
-  smatch matches;
-  regex_search(input, matches, line_parser);
-
-  for (auto match: matches) {
-    if (match == *matches.begin()) {
-      continue;
-    }
-
-    string match_str = match.str();
-    lines.push_back(match_str.substr(0, match_str.size() - 1));
-  }
-
-  return lines;
-};
-
-list<string> Passport::parse_groups(list<string> lines) {
-  list<string> groups;
-  string current_group = "";
-
-  for (auto line: lines) {
-    // if it has a newline or is blank
-    size_t len = line.size();
-    if (len <= 1) {
-      groups.push_back(current_group);
-      current_group = "";
-    } else {
-      current_group += line.substr(0, len - 1) + ' ';
-    }
-  }
-
-  if (current_group.size() > 1) {
-    lines.push_back(current_group);
-  }
-
-  cout << "groups; " << groups.size() << endl;
-
-  return lines;
-}
-
 list< vector<string> > Passport::parse_keypairs(string group) {
   list< vector<string> > keypairs = {};
 
-  const regex keypair_regex("((\\w+):(.+?)\\s)+");
+  const regex keypair_regex("(\\w+):(\\S+)");
   smatch matches;
   vector<string> keypair;
 
@@ -134,17 +102,14 @@ list< vector<string> > Passport::parse_keypairs(string group) {
     long idx = it - matches.begin();
     if (idx == 0) { continue; }
 
-    switch (idx % 3) {
+    switch (idx % 2) {
       case 1:
-        // whole group match, skip
-        break;
-      case 2:
         // key match
-        cout << "key: " << *it << endl;
+        cout << "key: " << it->str() << endl;
         break;
-      case 3:
+      case 0:
         // val match
-        cout << "val: " << *it << endl;
+        cout << "val: " << it->str() << endl;
         break;
       default:
         break;
@@ -159,13 +124,16 @@ list< vector<string> > Passport::parse_keypairs(string group) {
 Passport *Passport::parse_passport(list< vector<string> > pairs) {
   Passport *passport = new Passport();
 
+  for (auto keypair: pairs) {
+    passport->fields.insert(pair<string, string>({ keypair[0], keypair[1] }));
+  }
   // TODO; fill in the details
 
   return passport;
 }
 
 int main() {
-  string test_input = read_entire_file("input/day4_test.txt");
+  list<string> test_input = read_lines("input/day4_test.txt");
   list<Passport *> test_passports = Passport::parse_passports(test_input);
   
   int test_valid = 0;
@@ -178,7 +146,7 @@ int main() {
   cout << "test: " << test_valid << "\n";
   assert(test_valid == 2);
 
-  string in = read_entire_file("input/day4.txt");
+  list<string> in = read_lines("input/day4.txt");
   list<Passport *> passports = Passport::parse_passports(in);
   
   int valid = 0;

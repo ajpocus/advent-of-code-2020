@@ -28,3 +28,7 @@ $(BUILD_DIR):
 
 clean:
 	@rm -rf $(BUILD_DIR)
+
+%:
+	g++ -std=c++11 -O2 -Wall -Werror src/$@.cpp build/common.o -o bin/$@
+
