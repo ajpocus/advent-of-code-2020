@@ -87,8 +87,6 @@ list<Passport *> Passport::parse_passports(list<string> groups) {
 Passport *Passport::parse_passport(string group) {
   Passport *passport = new Passport();
 
-  cout << "group: " << group << endl;
-  
   list<string> keypairs = split_string(group, ' ');
   for (string keypair: keypairs) {
     list<string> keyval = split_string(keypair, ':');
@@ -96,7 +94,6 @@ Passport *Passport::parse_passport(string group) {
 
     int idx = 0;
     for (auto el: keyval) {
-      cout << "el p " << el << endl;
       pr[idx] = el;
       ++idx;
     }
