@@ -19,9 +19,9 @@ list<string> get_file(string filename) {
   return input;
 }
 
-vector<string> split_string(string str, char delimiter) {
+list<string> split_string(string str, char delimiter) {
   string current_token = "";
-  vector<string> tokens = {};
+  list<string> tokens = {};
 
   for (auto ch: str) {
     if (ch == delimiter) {
