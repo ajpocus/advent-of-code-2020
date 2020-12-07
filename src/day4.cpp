@@ -8,8 +8,6 @@
 
 #include "common.hpp"
 
-using namespace std;
-
 list<string> read_lines(string filepath) {
   ifstream input_file;
   input_file.open(filepath, ios::in);
@@ -67,7 +65,7 @@ bool Passport::has_required_fields() {
   }
 
   for (auto key: REQUIRED_FIELDS) {
-    if (fields.count(key) == 0 && key != "cid") {
+    if (fields[key] == "" && key != "cid") {
       return false;
     }
   }
@@ -89,13 +87,16 @@ list<Passport *> Passport::parse_passports(list<string> groups) {
 Passport *Passport::parse_passport(string group) {
   Passport *passport = new Passport();
 
+  cout << "group: " << group << endl;
+  
   list<string> keypairs = split_string(group, ' ');
   for (string keypair: keypairs) {
     list<string> keyval = split_string(keypair, ':');
-    string pr[2];
+    string pr[keyval.size()];
 
     int idx = 0;
     for (auto el: keyval) {
+      cout << "el p " << el << endl;
       pr[idx] = el;
       ++idx;
     }
@@ -113,7 +114,7 @@ bool Passport::validate() {
 
   // byr (Birth Year) - four digits; at least 1920 and at most 2002.
   string byr = fields["byr"];
-  cout << "byr: " << byr << endl;
+  std::cout << "byr: " << byr << endl;
 
   if (byr == "") { return false; }
 
@@ -130,7 +131,7 @@ bool Passport::validate() {
   // iyr (Issue Year) - four digits; at least 2010 and at most 2020.
   try {
     string iyr = fields["iyr"];
-    cout << "iyr: " << iyr << endl;
+    std::cout << "iyr: " << iyr << endl;
 
     if (iyr == "") { return false; }
 
@@ -145,7 +146,7 @@ bool Passport::validate() {
   // eyr (Expiration Year) - four digits; at least 2020 and at most 2030.
   try {
     string eyr = fields["eyr"];
-    cout << "eyr: " << eyr << endl;
+    std::cout << "eyr: " << eyr << endl;
     
     if (eyr == "") { return false; }
 
@@ -163,14 +164,14 @@ bool Passport::validate() {
   try {
     const regex height_matcher("(\\d+)(cm|in)");
     string hgt = fields["hgt"];
-    cout << "hgt: " << hgt << endl;
+    std::cout << "hgt: " << hgt << endl;
     if (hgt == "") { return false; }
 
     smatch matches;
     bool does_match = regex_match(hgt, matches, height_matcher);
     if (does_match) {
       string height_str = matches[1].str();
-      cout << "height: " << height_str << endl;
+      std::cout << "height: " << height_str << endl;
       int height = stoi(height_str);
       string unit = matches[2].str();
 
@@ -195,7 +196,7 @@ bool Passport::validate() {
   // hcl (Hair Color) - a # followed by exactly six characters 0-9 or a-f.
   const regex hcl_parser("#[0-9a-fA-F]{6}");
   string hcl = fields["hcl"];
-  cout << "hcl: " << hcl << endl;
+  std::cout << "hcl: " << hcl << endl;
 
   smatch matches;
   if (!regex_match(hcl, matches, hcl_parser)) {
@@ -240,7 +241,7 @@ int main() {
     }
   }
   
-  cout << "test: " << test_valid << "\n";
+  std::cout << "test: " << test_valid << "\n";
   assert(test_valid == 2);
 
   list<string> in = read_lines("input/day4.txt");
@@ -253,7 +254,7 @@ int main() {
     }
   }
   
-  cout << "Valid: " << valid << endl;
+  std::cout << "Valid: " << valid << endl;
 
   valid = 0;
   for (auto pass: passports) {
@@ -262,7 +263,7 @@ int main() {
     }
   }
 
-  cout << "Super valid: " << valid << endl;
+  std::cout << "Super valid: " << valid << endl;
 
   return 0;
 }
