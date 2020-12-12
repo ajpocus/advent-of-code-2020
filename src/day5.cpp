@@ -3,6 +3,9 @@
 #include <string>
 #include <list>
 #include <cstdlib>
+#include <vector>
+#include <algorithm>
+#include <map>
 
 using std::string;
 using std::ifstream;
@@ -10,11 +13,18 @@ using std::list;
 using std::cout;
 using std::endl;
 using std::next;
+using std::vector;
+using std::map;
+using std::to_string;
 
 typedef struct Seat {
   int row;
   int column;
   int seat_id;
+
+  bool operator==(const Seat& other) const {
+    return row == other.row && column == other.column && seat_id == other.seat_id;
+  }
 } Seat;
 
 const int ROW_COUNT = 128;
@@ -60,6 +70,10 @@ int get_index(string input, int init_upper_bound, char lower_char, char upper_ch
   return index;
 };
 
+int get_seat_id(int row, int col) {
+  return row * 8 + col;
+}
+
 Seat *get_seat(string input) {
   int row_upper = ROW_COUNT - 1;
   int col_upper = COLUMN_COUNT - 1;
@@ -74,7 +88,7 @@ Seat *get_seat(string input) {
 
   int row = get_index(row_str, row_upper, 'F', 'B');
   int column = get_index(col_str, col_upper, 'L', 'R');
-  int seat_id = row * 8 + column;
+  int seat_id = get_seat_id(row, column);
 
   cout << "Seat: " << "row=" << row << "&col=" << column << "&seatid=" << seat_id << endl;
 
@@ -116,14 +130,44 @@ int main() {
     inputs.push_back(line);
   }
 
+  list<Seat *> seats;
   for (auto input: inputs) {
     Seat *seat = get_seat(input);
+    seats.push_back(seat);
+
     if (seat->seat_id > biggest_seat) {
       biggest_seat = seat->seat_id;
     }
   }
 
   cout << "biggest seat: " << biggest_seat << endl;
+
+  // find my seat, the only one missing that's 
+  // not the first or last seat in the row/column
+
+  map<string, bool> seat_id_map;
+  int seat_map[ROW_COUNT][COLUMN_COUNT];
+
+  // iterate by index so we can have gaps
+  for (auto seat: seats) {
+    string id_str = std::to_string(seat->seat_id);
+    seat_map[seat->row][seat->column] = seat->seat_id;
+    seat_id_map[id_str] = true;
+  }
+
+  for (int row = 0; row < ROW_COUNT; ++row) {
+    for (int col = 0; col < COLUMN_COUNT; ++col) {
+      if (!seat_map[row][col]) {
+        int this_id = get_seat_id(row, col);
+        string prev_id = to_string(this_id - 1);
+        string next_id = to_string(this_id + 1);
+
+        if (seat_id_map[prev_id] && seat_id_map[next_id]) {
+          cout << "this is the way, step inside... row=" << row << "&col=" << col << "&id=" << this_id << endl;     
+        }
+      }
+    }
+  }
 
   return 0;
 }
