@@ -34,18 +34,24 @@ int get_index(string input, int init_upper_bound, char lower_char, char upper_ch
     const int diff = upper_bound - lower_bound;
     int split = diff / 2;
 
+    bool isGap = ((upper_bound - lower_bound) > 1);
     if (next(it) == input.end()) {
+      cout << "reached end" << endl;
+      cout << "is gap? " << isGap << endl;
+
       if (chr == lower_char) {
+        cout << "is lower" << endl;
         index = lower_bound;
       } else {
+        cout << "is upper" << endl;
         index = upper_bound;
       }
     } else {
       if (chr == lower_char) {
-        upper_bound -= split;
+        upper_bound -= split + 1;
         cout << "UPP AFTER: " << upper_bound << endl;
       } else if (chr == upper_char) {
-        lower_bound += split;
+        lower_bound += split + 1;
         cout << "LOW AFTER: " << lower_bound << endl;
       } else {
         continue;
@@ -82,6 +88,11 @@ bool equal_seats(Seat *test_seat, Seat *test_result) {
 }
 
 int main() {
+  string test_input0 = "FBFBBFFRLR";
+  Seat *test_seat0 = new Seat({ .row = 44, .column = 5, .seat_id = 357 });
+  Seat *test_result0 = get_seat(test_input0);
+  assert(equal_seats(test_seat0, test_result0));
+
   string test_input1 = "BFFFBBFRRR";
   Seat test_seat1 = Seat { .row = 70, .column = 7, .seat_id = 567 };
   Seat *test_result1 = get_seat(test_input1);
