@@ -20,87 +20,60 @@ typedef struct Seat {
 const int ROW_COUNT = 128;
 const int COLUMN_COUNT = 8;
 
+int get_index(string input, int init_upper_bound, char lower_char, char upper_char) {
+  int lower_bound = 0;
+  int upper_bound = init_upper_bound;
+  int index = -1;
+
+  for (string::const_iterator it = input.begin(); it != input.end(); ++it) {
+    char chr = *it;
+    cout << "ROW CHR: " << chr << endl;
+    cout << "ROW UPP: " << upper_bound << endl;
+    cout << "ROW LOW: " << lower_bound << endl;
+
+    const int diff = upper_bound - lower_bound;
+    int split = diff / 2;
+    if (diff % 2 != 0) {
+      split += (chr == 'F') ? -1 : 1;
+    }
+
+    if (chr == 'F') {
+      upper_bound -= split;
+      cout << "ROW UPP AFTER: " << upper_bound << endl;
+
+      if (next(it) == input.end()) {
+        index = upper_bound - 1;
+      }
+    } else if (chr == 'B') {
+      lower_bound += split;
+      cout << "ROW LOW AFTER: " << lower_bound << endl;
+
+      if (next(it) == input.end()) {
+        index = lower_bound + 1;
+      }
+    } else {
+      continue;
+    }
+  }
+
+  return index;
+};
+
 Seat *get_seat(string input) {
-  int row = 0;
-  int column = 0;
-  int seat_id = 0;
-  int row_lower = 0;
   int row_upper = ROW_COUNT - 1;
-  int col_lower = 0;
   int col_upper = COLUMN_COUNT - 1;
 
-  const string row_str = input.substr(0, 7);
-  const string col_str = input.substr(7, 10);
+  const int row_str_len = 7;
+  const int col_str_len = 3;
+  const string row_str = input.substr(0, row_str_len);
+  const string col_str = input.substr(row_str_len, row_str_len + col_str_len);
 
   cout << "ROW STR: " << row_str << endl;
   cout << "COL STR: " << col_str << endl;
 
-  for (string::const_iterator it = row_str.begin(); it != row_str.end(); ++it) {
-    char chr = *it;
-    cout << "ROW CHR: " << chr << endl;
-    cout << "ROW UPP: " << row_upper << endl;
-    cout << "ROW LOW: " << row_lower << endl;
-
-    const int diff = row_upper - row_lower;
-    int split = diff / 2;
-    if (diff % 2 != 0) {
-      split += (chr == 'B') ? -1 : 1;
-    }
-
-    if (chr == 'F') {
-      row_upper -= split;
-      cout << "ROW UPP AFTER: " << row_upper << endl;
-
-      if (next(it) == row_str.end()) {
-        row = row_upper;
-      }
-    } else if (chr == 'B') {
-      row_lower += split;
-      cout << "ROW LOW AFTER: " << row_lower << endl;
-
-      if (next(it) == row_str.end()) {
-        row = row_lower;
-      }
-    } else {
-      continue;
-    }
-  }
-
-  for (string::const_iterator it = col_str.begin(); it != col_str.end(); ++it) {
-    const char chr = *it;
-
-    cout << "COL CHR: " << chr << endl;
-    cout << "UPP: " << col_upper << endl;
-    cout << "LOW: " << col_lower << endl;
-
-    const int diff = col_upper - col_lower;
-    int split = diff / 2;
-    if (diff % 2 != 0) {
-      split += (chr == 'L') ? -1 : 1;
-    }
-
-    if (chr == 'L') {
-      col_upper -= split;
-      cout << "COL UPP: " << col_upper << endl;
-
-      if (next(it) == col_str.end()) {
-        column = col_upper;
-        break;
-      }
-    } else if (chr == 'R') {
-      col_lower += split;
-      cout << "COL LOW: " << col_lower << endl;
-
-      if (next(it) == col_str.end()) {
-        column = col_lower;
-        break;
-      }
-    } else {
-      continue;
-    }
-  }
-
-  seat_id = row * 8 + column;
+  int row = get_index(row_str, row_upper, 'F', 'B');
+  int column = get_index(col_str, col_upper, 'L', 'R');
+  int seat_id = row * 8 + column;
 
   cout << "Seat: " << "row=" << row << "&col=" << column << "&seatid=" << seat_id << endl;
 
