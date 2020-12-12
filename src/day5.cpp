@@ -34,10 +34,8 @@ int get_index(string input, int init_upper_bound, char lower_char, char upper_ch
     const int diff = upper_bound - lower_bound;
     int split = diff / 2;
 
-    bool isGap = ((upper_bound - lower_bound) > 1);
     if (next(it) == input.end()) {
       cout << "reached end" << endl;
-      cout << "is gap? " << isGap << endl;
 
       if (chr == lower_char) {
         cout << "is lower" << endl;
