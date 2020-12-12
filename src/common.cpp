@@ -32,5 +32,9 @@ list<string> split_string(string str, char delimiter) {
     }
   }
 
+  if (current_token != "") {
+    tokens.push_back(current_token);
+  }
+
   return tokens;
 }

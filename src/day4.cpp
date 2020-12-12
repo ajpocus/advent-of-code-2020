@@ -89,10 +89,18 @@ Passport *Passport::parse_passport(string group) {
 
   list<string> keypairs = split_string(group, ' ');
   for (string keypair: keypairs) {
+    cout << "KP: " << keypair << endl;
+    
     if (keypair.size() < 2) {
       continue;
     }
     list<string> keyval = split_string(keypair, ':');
+
+    int i = 0;
+    for (auto el: keyval) {
+      cout << "EL " << i++ << ": " << el << endl;
+    }
+
     string pr[keyval.size()];
 
     int idx = 0;
