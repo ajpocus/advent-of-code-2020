@@ -27,32 +27,29 @@ int get_index(string input, int init_upper_bound, char lower_char, char upper_ch
 
   for (string::const_iterator it = input.begin(); it != input.end(); ++it) {
     char chr = *it;
-    cout << "ROW CHR: " << chr << endl;
-    cout << "ROW UPP: " << upper_bound << endl;
-    cout << "ROW LOW: " << lower_bound << endl;
+    cout << "CHR: " << chr << endl;
+    cout << "UPP: " << upper_bound << endl;
+    cout << "LOW: " << lower_bound << endl;
 
     const int diff = upper_bound - lower_bound;
     int split = diff / 2;
-    if (diff % 2 != 0) {
-      split += (chr == 'F') ? -1 : 1;
-    }
 
-    if (chr == 'F') {
-      upper_bound -= split;
-      cout << "ROW UPP AFTER: " << upper_bound << endl;
-
-      if (next(it) == input.end()) {
-        index = upper_bound - 1;
-      }
-    } else if (chr == 'B') {
-      lower_bound += split;
-      cout << "ROW LOW AFTER: " << lower_bound << endl;
-
-      if (next(it) == input.end()) {
-        index = lower_bound + 1;
+    if (next(it) == input.end()) {
+      if (chr == lower_char) {
+        index = lower_bound;
+      } else {
+        index = upper_bound;
       }
     } else {
-      continue;
+      if (chr == lower_char) {
+        upper_bound -= split;
+        cout << "UPP AFTER: " << upper_bound << endl;
+      } else if (chr == upper_char) {
+        lower_bound += split;
+        cout << "LOW AFTER: " << lower_bound << endl;
+      } else {
+        continue;
+      }
     }
   }
 
@@ -80,21 +77,25 @@ Seat *get_seat(string input) {
   return new Seat({ .row = row, .column = column, .seat_id = seat_id });
 };
 
+bool equal_seats(Seat *test_seat, Seat *test_result) {
+  return test_seat->row == test_result->row && test_seat->column == test_result->column && test_seat->seat_id == test_result->seat_id;
+}
+
 int main() {
   string test_input1 = "BFFFBBFRRR";
   Seat test_seat1 = Seat { .row = 70, .column = 7, .seat_id = 567 };
   Seat *test_result1 = get_seat(test_input1);
-  assert(test_seat1.row == test_result1->row && test_seat1.column == test_result1->column && test_seat1.seat_id == test_result1->seat_id);
+  assert(equal_seats(&test_seat1, test_result1));
   
   string test_input2 = "FFFBBBFRRR";
   Seat test_seat2 = Seat { .row = 14, .column = 7, .seat_id = 119 };
   Seat *test_result2 = get_seat(test_input2);
-  assert(test_seat2.row == test_result2->row && test_seat2.column == test_result2->column && test_seat2.seat_id == test_result2->seat_id);
+  assert(equal_seats(&test_seat2, test_result2));
 
   string test_input3 = "BBFFBBFRLL";
   Seat test_seat3 = Seat { .row = 102, .column = 4, .seat_id = 820 };
   Seat *test_result3 = get_seat(test_input3);
-  assert(test_seat3.row == test_result3->row && test_seat3.column == test_result3->column && test_seat3.seat_id == test_result3->seat_id);
+  assert(equal_seats(&test_seat3, test_result3));
 
   ifstream file_stream;
   file_stream.open("input/day5.txt", std::ios::in);
