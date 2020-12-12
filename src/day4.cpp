@@ -89,6 +89,9 @@ Passport *Passport::parse_passport(string group) {
 
   list<string> keypairs = split_string(group, ' ');
   for (string keypair: keypairs) {
+    if (keypair.size() < 2) {
+      continue;
+    }
     list<string> keyval = split_string(keypair, ':');
     string pr[keyval.size()];
 
