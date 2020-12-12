@@ -53,5 +53,8 @@ int main() {
 
   cout << "TEST PASSED" << endl;
 
+  int real_count = get_yes_counts("input/day6.txt");
+  cout << "count: " << real_count << endl;
+
   return 0;
 }
