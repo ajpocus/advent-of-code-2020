@@ -32,7 +32,7 @@ int get_index(string input, int init_upper_bound, char lower_char, char upper_ch
     cout << "LOW: " << lower_bound << endl;
 
     const int diff = upper_bound - lower_bound;
-    int split = diff / 2;
+    int split = diff / 2 + 1;
 
     if (next(it) == input.end()) {
       cout << "reached end" << endl;
@@ -46,10 +46,10 @@ int get_index(string input, int init_upper_bound, char lower_char, char upper_ch
       }
     } else {
       if (chr == lower_char) {
-        upper_bound -= split + 1;
+        upper_bound -= split;
         cout << "UPP AFTER: " << upper_bound << endl;
       } else if (chr == upper_char) {
-        lower_bound += split + 1;
+        lower_bound += split;
         cout << "LOW AFTER: " << lower_bound << endl;
       } else {
         continue;
