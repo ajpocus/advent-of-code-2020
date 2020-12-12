@@ -2,12 +2,14 @@
 #include <fstream>
 #include <string>
 #include <list>
+#include <cstdlib>
 
 using std::string;
 using std::ifstream;
 using std::list;
 using std::cout;
 using std::endl;
+using std::next;
 
 typedef struct Seat {
   int row;
@@ -27,36 +29,69 @@ Seat *get_seat(string input) {
   int col_lower = 0;
   int col_upper = COLUMN_COUNT - 1;
 
-  for (auto chr: input) {
-    cout << "CHR: " << chr << endl;
+  const string row_str = input.substr(0, 7);
+  const string col_str = input.substr(7, 10);
+
+  cout << "ROW STR: " << row_str << endl;
+  cout << "COL STR: " << col_str << endl;
+
+  for (string::const_iterator it = row_str.begin(); it != row_str.end(); ++it) {
+    char chr = *it;
+    cout << "ROW CHR: " << chr << endl;
+    cout << "ROW UPP: " << row_upper << endl;
+    cout << "ROW LOW: " << row_lower << endl;
+
+    const int diff = row_upper - row_lower;
+    int split = diff / 2;
+    if (diff % 2 != 0) {
+      split += (chr == 'B') ? -1 : 1;
+    }
 
     if (chr == 'F') {
-      row_upper -= (row_upper - row_lower) / 2;
-      cout << "ROW UPP: " << row_upper << endl;
+      row_upper -= split;
+      cout << "ROW UPP AFTER: " << row_upper << endl;
 
-      if (row_lower == row_upper) {
+      if (next(it) == row_str.end()) {
         row = row_upper;
       }
     } else if (chr == 'B') {
-      row_lower += (row_upper - row_lower) / 2;
-      cout << "ROW LOW: " << row_lower << endl;
+      row_lower += split;
+      cout << "ROW LOW AFTER: " << row_lower << endl;
 
-      if (row_lower == row_upper) {
+      if (next(it) == row_str.end()) {
         row = row_lower;
       }
-    } else if (chr == 'L') {
-      col_lower += (col_upper - col_lower) / 2;
-      cout << "COL LOW: " << col_lower << endl;
+    } else {
+      continue;
+    }
+  }
 
-      if (col_lower == col_upper) {
-        column = col_lower;
+  for (string::const_iterator it = col_str.begin(); it != col_str.end(); ++it) {
+    const char chr = *it;
+
+    cout << "COL CHR: " << chr << endl;
+    cout << "UPP: " << col_upper << endl;
+    cout << "LOW: " << col_lower << endl;
+
+    const int diff = col_upper - col_lower;
+    int split = diff / 2;
+    if (diff % 2 != 0) {
+      split += (chr == 'L') ? -1 : 1;
+    }
+
+    if (chr == 'L') {
+      col_upper -= split;
+      cout << "COL UPP: " << col_upper << endl;
+
+      if (next(it) == col_str.end()) {
+        column = col_upper;
         break;
       }
     } else if (chr == 'R') {
-      col_upper -= (col_upper - col_lower) / 2;
-      cout << "COL UPP: " << col_upper << endl;
+      col_lower += split;
+      cout << "COL LOW: " << col_lower << endl;
 
-      if (col_lower == col_upper) {
+      if (next(it) == col_str.end()) {
         column = col_lower;
         break;
       }
@@ -66,6 +101,8 @@ Seat *get_seat(string input) {
   }
 
   seat_id = row * 8 + column;
+
+  cout << "Seat: " << "row=" << row << "&col=" << column << "&seatid=" << seat_id << endl;
 
   return new Seat({ .row = row, .column = column, .seat_id = seat_id });
 };
