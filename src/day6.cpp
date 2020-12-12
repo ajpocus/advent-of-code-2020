@@ -11,7 +11,7 @@ using std::cout;
 using std::endl;
 using std::map;
 
-int get_yes_counts(string filepath) {
+int get_all_yes_counts(string filepath) {
   ifstream ifs;
   ifs.open(filepath, std::ios::in);
   list< list<string> > groups;
@@ -41,19 +41,19 @@ int get_yes_counts(string filepath) {
       }
     }
 
-    total += counts.size();
+    typedef map<char, int>::iterator iter;
+    for (iter it = counts.begin(); it != counts.end(); ++it) {
+      if (it->second == group.size()) {
+        ++total;
+      }
+    }
   }
 
   return total;
 }
 
 int main() {
-  int test_count = get_yes_counts("input/day6_test.txt");
-  assert(test_count == 11);
-
-  cout << "TEST PASSED" << endl;
-
-  int real_count = get_yes_counts("input/day6.txt");
+  int real_count = get_all_yes_counts("input/day6.txt");
   cout << "count: " << real_count << endl;
 
   return 0;
